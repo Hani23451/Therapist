@@ -157,7 +157,8 @@ exports.createRelationship = expressAsyncHandler(async (req, res, next) => {
       user2: partner._id,
       engagementDate,
       marriageDate,
-      proposalDate,
+      proposalDate, 
+      linkedWord: user.linkedWord,
     });
 
     // Update both users' relationship statuses
