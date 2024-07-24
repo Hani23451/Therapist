@@ -6,7 +6,7 @@ const Settings = require("../../models/Settings");
 const Stories = require("../../models/Stories");
 const User = require("../../models/User");
 const Relationship = require("../../models/RelationShip");
-const admin = require("../../config/FireBase");
+// const admin = require("../../config/FireBase");
 const Experience = require("../../models/Experience");
 // Controller function to get all gems and render the page
 exports.getAllGems = expressAsyncHandler(async (req, res) => {
