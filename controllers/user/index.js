@@ -137,27 +137,35 @@ exports.createRelationship = expressAsyncHandler(async (req, res, next) => {
     const user = await User.findById(userId).populate("partner");
 
     if (!user) {
-      return res
-        .status(404)
-        .json({ success: false, message: "partner not found" });
+      return res.status(404).json({ success: false, message: "User not found" });
     }
 
     // Find the partner
     const partner = user.partner;
 
     if (!partner) {
-      return res
-        .status(404)
-        .json({ success: false, message: "No partner found for the user" });
+      return res.status(404).json({ success: false, message: "No partner found for the user" });
     }
 
-    // Create the relationship
+    // Check if a relationship already exists between the current user and their partner
+    const existingRelationship = await Relationship.findOne({
+      $or: [
+        { user1: userId, user2: partner._id },
+        { user1: partner._id, user2: userId }
+      ]
+    });
+
+    if (existingRelationship) {
+      return res.status(400).json({ success: false, message: "Relationship already exists between the users" });
+    }
+
+    // Create the new relationship
     const relationship = await Relationship.create({
       user1: userId,
       user2: partner._id,
       engagementDate,
       marriageDate,
-      proposalDate, 
+      proposalDate,
       linkedWord: user.linkedWord,
     });
 
@@ -175,7 +183,7 @@ exports.createRelationship = expressAsyncHandler(async (req, res, next) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ success: false, message: "Server Error" });
+    res.status(500).json({ success: false, message: "Server Error", error: error.message });
   }
 });
 
@@ -226,12 +234,41 @@ exports.addExperience = expressAsyncHandler(async (req, res) => {
   }
 });
 
-
 exports.getPublishedExperiences = expressAsyncHandler(async (req, res) => {
   try {
-    const experiences = await Experience.find({ status: 'published' });
+    const experiences = await Experience.find({ status: "published" });
     res.status(200).json({ success: true, experiences });
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Server Error', error: error.message });
+    res
+      .status(500)
+      .json({ success: false, message: "Server Error", error: error.message });
+  }
+});
+exports.getUserData = expressAsyncHandler(async (req, res) => {
+  try {
+    // Fetch user data
+    const user = await User.findById(req.user.userId);
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    // Fetch relationships involving the user, populating user details
+    const relationships = await Relationship.findOne({
+      $or: [{ user1: req.user.userId }, { user2: req.user.userId }],
+    })
+      .populate("user1", "fullname email   ") // Populate user1 details
+      .populate("user2", "fullname email  "); // Populate user2 details
+
+    res
+      .status(200)
+      .json({ success: true, user, relationship:  relationships || null }); 
+  
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, message: "Server Error", error: error.message });
   }
 });

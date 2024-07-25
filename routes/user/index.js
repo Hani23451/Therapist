@@ -11,6 +11,7 @@ const {
   sendLoveClick,
   addExperience,
   getPublishedExperiences,
+  getUserData,
 } = require("../../controllers/user/index");
 const verifyToken = require("../../middlewares/verifyToken");
 
@@ -705,4 +706,155 @@ router.post("/create-experience", addExperience);
 router.get("/experiences", getPublishedExperiences);
 
 // router.post("/love-click", verifyToken, sendLoveClick);
+/**
+ * @swagger
+ * /api/user/get-user:
+ *   get:
+ *     summary: Retrieve user data and relationships
+ *     description: Fetches the data of the currently logged-in user along with all relationships where the user is involved. The request requires authentication via token.
+ *     tags:
+ *       - User
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       '200':
+ *         description: Successfully retrieved user data and relationships
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: Success status.
+ *                   example: true
+ *                 user:
+ *                   type: object
+ *                   properties:
+ *                     _id:
+ *                       type: string
+ *                       description: User ID.
+ *                       example: "60c72b2f4f1a2c001f8e4b1e"
+ *                     fullName:
+ *                       type: string
+ *                       description: User's full name.
+ *                       example: "John Doe"
+ *                     email:
+ *                       type: string
+ *                       description: User's email address.
+ *                       example: "john.doe@example.com"
+ *                     // Other user fields...
+ *                 relationships:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                         description: Relationship ID.
+ *                         example: "60c72b2f4f1a2c001f8e4b1f"
+ *                       user1:
+ *                         type: object
+ *                         properties:
+ *                           fullName:
+ *                             type: string
+ *                             description: Full name of user1.
+ *                             example: "John Doe"
+ *                           email:
+ *                             type: string
+ *                             description: Email of user1.
+ *                             example: "john.doe@example.com"
+ *                       user2:
+ *                         type: object
+ *                         properties:
+ *                           fullName:
+ *                             type: string
+ *                             description: Full name of user2.
+ *                             example: "Jane Smith"
+ *                           email:
+ *                             type: string
+ *                             description: Email of user2.
+ *                             example: "jane.smith@example.com"
+ *                       linkedWord:
+ *                         type: string
+ *                         description: Linked word associated with the relationship.
+ *                         example: "Love"
+ *                       engagementDate:
+ *                         type: string
+ *                         format: date
+ *                         description: Date of engagement.
+ *                         example: "2024-07-20"
+ *                       marriageDate:
+ *                         type: string
+ *                         format: date
+ *                         description: Date of marriage.
+ *                         example: "2024-12-25"
+ *                       proposalDate:
+ *                         type: string
+ *                         format: date
+ *                         description: Date of proposal.
+ *                         example: "2024-06-15"
+ *                       createdAt:
+ *                         type: string
+ *                         format: date-time
+ *                         description: Date and time when the relationship was created.
+ *                         example: "2024-07-21T15:21:00Z"
+ *                       updatedAt:
+ *                         type: string
+ *                         format: date-time
+ *                         description: Date and time when the relationship was last updated.
+ *                         example: "2024-07-21T15:21:00Z"
+ *       '401':
+ *         description: Unauthorized access
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: Success status.
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   description: Error message.
+ *                   example: "Unauthorized access. Token is missing or invalid."
+ *       '404':
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: Success status.
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   description: Error message.
+ *                   example: "User not found"
+ *       '500':
+ *         description: Internal Server Error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   description: Success status.
+ *                   example: false
+ *                 message:
+ *                   type: string
+ *                   description: Error message.
+ *                   example: "Server error occurred."
+ *     components:
+ *       securitySchemes:
+ *         bearerAuth:
+ *           type: http
+ *           scheme: bearer
+ *           bearerFormat: JWT
+ */
+router.get("/get-user", verifyToken, getUserData);
 module.exports = router;
